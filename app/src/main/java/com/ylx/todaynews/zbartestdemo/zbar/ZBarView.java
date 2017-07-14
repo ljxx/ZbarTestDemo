@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.widget.Toast;
 
 import com.ylx.todaynews.zbartestdemo.zbarcore.QRCodeView;
 
@@ -40,5 +39,37 @@ public class ZBarView extends QRCodeView {
         for (BarcodeFormat format : BarcodeFormat.ALL_FORMATS) {
             mScanner.setConfig(format.getId(), Config.ENABLE, 1);
         }
+    }
+
+    @Override
+    public String processData(byte[] data, int width, int height, boolean isRetry) {
+        String result = null;
+        Image barcode = new Image(width, height, "Y800");
+
+        Rect rect = mScanBoxView.getScanBoxAreaRect(height);
+        if (rect != null && !isRetry && rect.left + rect.width() <= width && rect.top + rect.height() <= height) {
+            barcode.setCrop(rect.left, rect.top, rect.width(), rect.height());
+
+        }
+
+        barcode.setData(data);
+        result = processData(barcode);
+
+        return result;
+    }
+
+    private String processData(Image barcode) {
+        String result = null;
+        if (mScanner.scanImage(barcode) != 0) {
+            SymbolSet syms = mScanner.getResults();
+            for (Symbol sym : syms) {
+                String symData = sym.getData();
+                if (!TextUtils.isEmpty(symData)) {
+                    result = symData;
+                    break;
+                }
+            }
+        }
+        return result;
     }
 }
