@@ -38,6 +38,8 @@ final class CameraConfigurationManager {
         }
 
         cameraResolution = getCameraResolution(parameters, screenResolutionForCamera);
+        //加这么一句试试看扫码错误的问题能否解决，期待...
+//        mScreenResolution = getCameraResolution(parameters, screenResolutionForCamera);
     }
 
     public Point getCameraResolution() {

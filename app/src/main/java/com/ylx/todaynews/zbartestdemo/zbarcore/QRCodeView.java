@@ -10,7 +10,7 @@ import android.widget.RelativeLayout;
 
 import com.ylx.todaynews.zbartestdemo.R;
 
-public abstract class QRCodeView extends RelativeLayout implements Camera.PreviewCallback, ProcessDataTask.Delegate {
+public abstract class QRCodeView extends RelativeLayout implements Camera.PreviewCallback {
     protected Camera mCamera;
     protected CameraPreview mPreview;
     protected ScanBoxView mScanBoxView;
@@ -247,7 +247,7 @@ public abstract class QRCodeView extends RelativeLayout implements Camera.Previe
     public void onPreviewFrame(final byte[] data, final Camera camera) {
         if (mSpotAble) {
             cancelProcessDataTask();
-            mProcessDataTask = new ProcessDataTask(camera, data, this) {
+            mProcessDataTask = new ProcessDataTask(camera, data) {
                 @Override
                 protected void onPostExecute(String result) {
                     if (mSpotAble) {
