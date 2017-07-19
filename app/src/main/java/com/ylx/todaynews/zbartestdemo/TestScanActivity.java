@@ -6,12 +6,15 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.provider.MediaStore;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.yanzhenjie.durban.Controller;
+import com.yanzhenjie.durban.Durban;
 import com.ylx.todaynews.zbartestdemo.utils.BitmapUtils;
 import com.ylx.todaynews.zbartestdemo.utils.ScanUtils;
 import com.ylx.todaynews.zbartestdemo.utils.StringHelper;
@@ -22,6 +25,8 @@ import net.sourceforge.zbar.Image;
 import net.sourceforge.zbar.ImageScanner;
 import net.sourceforge.zbar.Symbol;
 import net.sourceforge.zbar.SymbolSet;
+
+import java.util.ArrayList;
 
 public class TestScanActivity extends AppCompatActivity implements QRCodeView.Delegate {
     private static final String TAG = TestScanActivity.class.getSimpleName();
@@ -132,9 +137,7 @@ public class TestScanActivity extends AppCompatActivity implements QRCodeView.De
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            ImageScanner mScanner = new ImageScanner();
-            mScanner.setConfig(0, Config.X_DENSITY, 3);
-            mScanner.setConfig(0, Config.Y_DENSITY, 3);
+
 
             switch (requestCode) {
                 case REQUEST_CODE:
@@ -148,26 +151,42 @@ public class TestScanActivity extends AppCompatActivity implements QRCodeView.De
                         photoPath = cursor.getString(columnIndex);
                         if (photoPath == null) {
                             photoPath = ScanUtils.getPath(getApplicationContext(), data.getData());
+                            setResult(photoPath);
                         }
                     }
                     cursor.close();
-                    Bitmap bitmap = BitmapUtils.getCompressedBitmap(photoPath);
-                    int width = bitmap.getWidth();
-                    int height = bitmap.getHeight();
-                    int[] pixels = new int[width * height];
-                    bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
-                    Image image = new Image(width, height, "RGB4");
-                    image.setData(pixels);
-                    int result = mScanner.scanImage(image.convert("Y800"));
-                    // 如果代码不为0，表示扫描成功
-                    if (result != 0) {
-                        // 停止扫描
+                    break;
+                case 200:
+                    ArrayList<String> mImageList = Durban.parseResult(data);
+                    String mPicUrl = mImageList.get(0);
+                    Log.i("=picurl===","==="+mPicUrl);
+                    jiexi(mPicUrl);
+                    break;
+            }
+        }
+    }
+
+    private void jiexi(String photoPath){
+        ImageScanner mScanner = new ImageScanner();
+        mScanner.setConfig(0, Config.X_DENSITY, 3);
+        mScanner.setConfig(0, Config.Y_DENSITY, 3);
+        Bitmap bitmap = BitmapUtils.getCompressedBitmap(photoPath);
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+        int[] pixels = new int[width * height];
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+        Image image = new Image(width, height, "RGB4");
+        image.setData(pixels);
+        int result = mScanner.scanImage(image.convert("Y800"));
+        // 如果代码不为0，表示扫描成功
+        if (result != 0) {
+            // 停止扫描
 //                        stopPreview();
-                        // 开始解析扫描图片
-                        SymbolSet Syms = mScanner.getResults();
-                        for (Symbol mSym : Syms) {
-                            // mSym.getType()方法可以获取扫描的类型，ZBar支持多种扫描类型,这里实现了条形码、二维码、ISBN码的识别
-                            int type = mSym.getType();
+            // 开始解析扫描图片
+            SymbolSet Syms = mScanner.getResults();
+            for (Symbol mSym : Syms) {
+                // mSym.getType()方法可以获取扫描的类型，ZBar支持多种扫描类型,这里实现了条形码、二维码、ISBN码的识别
+                int type = mSym.getType();
 //                            if (type == Symbol.CODE128
 //                                    || type == Symbol.QRCODE
 //                                    || type == Symbol.CODABAR
@@ -182,33 +201,30 @@ public class TestScanActivity extends AppCompatActivity implements QRCodeView.De
 //                                    || type == Symbol.EAN13
 //                                    || type == Symbol.CODE128
 //                                    ) {
-                                // 添加震动效果，提示用户扫描完成
-                                Vibrator mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
-                                mVibrator.vibrate(400);
+                // 添加震动效果，提示用户扫描完成
+                Vibrator mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+                mVibrator.vibrate(400);
 //                                String resultContent = "扫描类型:" + GetResultByCode(mSym.getType()) + "\n扫码结果：" + mSym.getData();
-                                String resultContent = "扫描类型:" + mSym.getType() + "；扫码结果：" + mSym.getData();
-                                StringHelper stringHelper = new StringHelper(resultContent);
-                                resultContent = stringHelper.SplitFormDict();
-                                Toast.makeText(TestScanActivity.this, resultContent, Toast.LENGTH_LONG).show();
+                String resultContent = "扫描类型:" + mSym.getType() + "；扫码结果：" + mSym.getData();
+                StringHelper stringHelper = new StringHelper(resultContent);
+                resultContent = stringHelper.SplitFormDict();
+                Toast.makeText(TestScanActivity.this, resultContent, Toast.LENGTH_LONG).show();
 
-                            ResultActivity.jumpActivity(TestScanActivity.this, resultContent);
+                ResultActivity.jumpActivity(TestScanActivity.this, resultContent);
 
-                                // 这里需要注意的是，getData方法才是最终返回识别结果的方法
-                                // 但是这个方法是返回一个标识型的字符串，换言之，返回的值中包含每个字符串的含义
-                                // 例如N代表姓名，URL代表一个Web地址等等，其它的暂时不清楚，如果可以对这个进行一个较好的分割
-                                // 效果会更好，如果需要返回扫描的图片，可以对Image做一个合适的处理
+                // 这里需要注意的是，getData方法才是最终返回识别结果的方法
+                // 但是这个方法是返回一个标识型的字符串，换言之，返回的值中包含每个字符串的含义
+                // 例如N代表姓名，URL代表一个Web地址等等，其它的暂时不清楚，如果可以对这个进行一个较好的分割
+                // 效果会更好，如果需要返回扫描的图片，可以对Image做一个合适的处理
 //                            }
-                        }
-                    } else {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(TestScanActivity.this, "图片格式有误", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-                    break;
             }
+        } else {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(TestScanActivity.this, "图片格式有误", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 
@@ -238,5 +254,30 @@ public class TestScanActivity extends AppCompatActivity implements QRCodeView.De
                 break;
         }
         return mResult;
+    }
+
+    private void setResult(String picturePath) {
+
+        Durban.with(TestScanActivity.this)
+                .statusBarColor(ContextCompat.getColor(this, R.color.colorPrimaryDark))
+                .toolBarColor(ContextCompat.getColor(this, R.color.colorPrimary))
+                .navigationBarColor(ContextCompat.getColor(this, R.color.colorPrimary))
+                .inputImagePaths(picturePath)
+                //.outputDirectory(cropDirectory)
+                .maxWidthHeight(500, 500)
+                .aspectRatio(1, 1)
+                .compressFormat(Durban.COMPRESS_JPEG)
+                .compressQuality(90)
+                // Gesture: ROTATE, SCALE, ALL, NONE.
+                .gesture(Durban.GESTURE_ALL)
+                .controller(Controller.newBuilder()
+                        .enable(false)
+                        .rotation(true)
+                        .rotationTitle(true)
+                        .scale(true)
+                        .scaleTitle(true)
+                        .build())
+                .requestCode(200)
+                .start();
     }
 }

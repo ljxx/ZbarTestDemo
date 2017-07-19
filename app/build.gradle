@@ -33,4 +33,7 @@ dependencies {
     compile 'pub.devrel:easypermissions:0.2.1'
     compile 'com.github.bumptech.glide:glide:3.7.0'
     testCompile 'junit:junit:4.12'
+
+    //用户剪切图片
+    compile 'com.yanzhenjie:durban:1.0.1'
 }
