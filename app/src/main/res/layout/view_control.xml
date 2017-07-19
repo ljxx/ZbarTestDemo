@@ -3,7 +3,9 @@
               style="@style/MatchWrap.Vertical"
               android:layout_alignParentBottom="true">
 
-    <LinearLayout style="@style/MatchWrap.Horizontal">
+    <LinearLayout style="@style/MatchWrap.Horizontal"
+
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/start_spot"
@@ -26,7 +28,9 @@
             android:text="隐藏扫描框"/>
     </LinearLayout>
 
-    <LinearLayout style="@style/MatchWrap.Horizontal">
+    <LinearLayout style="@style/MatchWrap.Horizontal"
+
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/start_spot_showrect"
@@ -39,7 +43,9 @@
             android:text="暂停识别隐藏扫描框"/>
     </LinearLayout>
 
-    <LinearLayout style="@style/MatchWrap.Horizontal">
+    <LinearLayout style="@style/MatchWrap.Horizontal"
+
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/start_preview"
