@@ -69,6 +69,7 @@ public class TestScanActivity extends AppCompatActivity implements QRCodeView.De
         Toast.makeText(this, result, Toast.LENGTH_SHORT).show();
         vibrate();
         mQRCodeView.startSpot();
+        ResultActivity.jumpActivity(this, result);
     }
 
     @Override
@@ -167,30 +168,36 @@ public class TestScanActivity extends AppCompatActivity implements QRCodeView.De
                         for (Symbol mSym : Syms) {
                             // mSym.getType()方法可以获取扫描的类型，ZBar支持多种扫描类型,这里实现了条形码、二维码、ISBN码的识别
                             int type = mSym.getType();
-                            if (type == Symbol.CODE128
-                                    || type == Symbol.QRCODE
-                                    || type == Symbol.CODABAR
-                                    || type == Symbol.ISBN10
-                                    || type == Symbol.ISBN13
-                                    || type == Symbol.DATABAR
-                                    || type == Symbol.DATABAR_EXP
-                                    || type == Symbol.I25
-                                    || type == Symbol.UPCA
-                                    || type == Symbol.UPCE
-                                    || type == Symbol.EAN8
-                                    || type == Symbol.EAN13) {
+//                            if (type == Symbol.CODE128
+//                                    || type == Symbol.QRCODE
+//                                    || type == Symbol.CODABAR
+//                                    || type == Symbol.ISBN10
+//                                    || type == Symbol.ISBN13
+//                                    || type == Symbol.DATABAR
+//                                    || type == Symbol.DATABAR_EXP
+//                                    || type == Symbol.I25
+//                                    || type == Symbol.UPCA
+//                                    || type == Symbol.UPCE
+//                                    || type == Symbol.EAN8
+//                                    || type == Symbol.EAN13
+//                                    || type == Symbol.CODE128
+//                                    ) {
                                 // 添加震动效果，提示用户扫描完成
                                 Vibrator mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
                                 mVibrator.vibrate(400);
-                                String resultContent = "扫描类型:" + GetResultByCode(mSym.getType()) + "\n" + mSym.getData();
+//                                String resultContent = "扫描类型:" + GetResultByCode(mSym.getType()) + "\n扫码结果：" + mSym.getData();
+                                String resultContent = "扫描类型:" + mSym.getType() + "；扫码结果：" + mSym.getData();
                                 StringHelper stringHelper = new StringHelper(resultContent);
                                 resultContent = stringHelper.SplitFormDict();
                                 Toast.makeText(TestScanActivity.this, resultContent, Toast.LENGTH_LONG).show();
+
+                            ResultActivity.jumpActivity(TestScanActivity.this, resultContent);
+
                                 // 这里需要注意的是，getData方法才是最终返回识别结果的方法
                                 // 但是这个方法是返回一个标识型的字符串，换言之，返回的值中包含每个字符串的含义
                                 // 例如N代表姓名，URL代表一个Web地址等等，其它的暂时不清楚，如果可以对这个进行一个较好的分割
                                 // 效果会更好，如果需要返回扫描的图片，可以对Image做一个合适的处理
-                            }
+//                            }
                         }
                     } else {
                         runOnUiThread(new Runnable() {

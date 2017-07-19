@@ -13,6 +13,8 @@ import net.sourceforge.zbar.ImageScanner;
 import net.sourceforge.zbar.Symbol;
 import net.sourceforge.zbar.SymbolSet;
 
+import static android.R.attr.type;
+
 public class ZBarView extends QRCodeView {
 
     static {
@@ -64,10 +66,26 @@ public class ZBarView extends QRCodeView {
             SymbolSet syms = mScanner.getResults();
             for (Symbol sym : syms) {
                 String symData = sym.getData();
-                if (!TextUtils.isEmpty(symData)) {
-                    result = symData;
-                    break;
+                int mType = sym.getType();
+                if (mType == Symbol.CODE128
+                            || type == Symbol.QRCODE
+                            || type == Symbol.CODABAR
+                            || type == Symbol.ISBN13
+                            || type == Symbol.DATABAR
+                            || type == Symbol.DATABAR_EXP
+                            || type == Symbol.I25
+                            || type == Symbol.UPCA
+                            || type == Symbol.UPCE
+                            || type == Symbol.EAN8
+                            || type == Symbol.EAN13
+                            || type == Symbol.CODE128
+                            ) {
+                    if (!TextUtils.isEmpty(symData)) {
+                        result = "识别类型：" + sym.getType() + "；识别内容:" + symData;
+                        break;
+                    }
                 }
+
             }
         }
         return result;
